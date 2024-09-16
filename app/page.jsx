@@ -35,7 +35,7 @@ export default function Home() {
           <TypewriterEffectSmooth words={words} className="" />
           <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-4 font-bold">
             <Link href="login">
-              <MainButton layoutId="login-button" style={{ originY: "0px" }}>
+              <MainButton  style={{ originY: "0px" }}>
                 Login
               </MainButton>
             </Link>
