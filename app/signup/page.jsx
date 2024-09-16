@@ -9,7 +9,7 @@ export default function SignUp() {
   const [isShowConfirm, setIsShowConfirm] = useState(false);
 
   return (
-    <main className="bg-gradient-to-b from-custom-black to-neutral-800 min-h-screen flex items-center justify-center">
+    <main className="bg-gradient-to-b from-custom-black to-neutral-800 min-h-[100svh] flex items-center justify-center">
       <form action="">
         <article className="bg-transparent px-16 py-8 text-center flex flex-col items-center justify-center gap-[1rem] w-[32rem]">
           <h1 className="mx-auto w-full text-center font-bold text-2xl text-white">
