@@ -11,7 +11,7 @@ export default function SignUp() {
   return (
     <main className="bg-gradient-to-b from-custom-black to-neutral-800 min-h-[100svh] flex items-center justify-center">
       <form action="">
-        <article className="bg-transparent px-16 py-8 text-center flex flex-col items-center justify-center gap-[1rem] max-w-[32rem]">
+        <article className="bg-transparent px-10 md:px-16 py-8 text-center flex flex-col items-center justify-center gap-[1rem] max-w-[32rem]">
           <h1 className="mx-auto w-full text-center font-bold text-2xl text-white">
             Register a new account
           </h1>
