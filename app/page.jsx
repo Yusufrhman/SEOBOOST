@@ -43,6 +43,7 @@ export default function Home() {
               <ReverseButton>Signup</ReverseButton>
             </Link>
           </div>
+            <Link href="/dashboard" className="text-custom-darkTeal opacity-60 underline mt-[1rem]">Start without logging in</Link>
         </div>
       </BackgroundBeamsWithCollision>
     </main>
