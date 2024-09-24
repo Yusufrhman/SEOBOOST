@@ -30,13 +30,16 @@ const TrendChart = ({ keyword }) => {
         "http://localhost:3000/api/googletrend/interest-over-time?keyword=" +
           keyword
       );
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status} - ${res.statusText}`);
+      }
       let resData = await res.json();
       setData(resData);
     }
     fetchPosts();
   }, [keyword]);
 
-  if (!data) return <div>Loading...</div>;
+  if (!data) return <div className="text-neutral-500">Loading...</div>;
 
   const labels = data.map((item) => item.formattedTime);
   const values = data.map((item) => item.value[0]);

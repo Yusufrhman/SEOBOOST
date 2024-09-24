@@ -11,7 +11,6 @@ export async function GET() {
       geo: "ID",
     })
     .then((res) => {
-      console.log(JSON.parse(res));
       result = JSON.parse(res);
     })
     .catch((err) => {
