@@ -2,38 +2,38 @@
 import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import {
-    IconAnalyzeFilled,
+  IconAnalyzeFilled,
   IconArrowLeft,
-  IconBrandTabler,
   IconHistory,
   IconSettings,
-  IconUserBolt,
   IconZoomMoney,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 export default function Layout({ children }) {
+  const path = usePathname();
   const links = [
     {
       label: "New Analysis",
-      href: "#",
+      href: "/dashboard/new",
       icon: (
         <IconAnalyzeFilled className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "History",
-      href: "#",
+      href: "/dashboard/history",
       icon: (
         <IconHistory className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Settings",
-      href: "#",
+      href: "/dashboard/settings",
       icon: (
         <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -61,7 +61,13 @@ export default function Layout({ children }) {
             </>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
+                <SidebarLink
+                  key={idx}
+                  link={link}
+                  className={
+                    path.match(link.href) ? "bg-neutral-700 px-1" : "" + " px-1"
+                  }
+                />
               ))}
             </div>
           </div>

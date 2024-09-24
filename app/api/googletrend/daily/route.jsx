@@ -14,7 +14,9 @@ export async function GET() {
       if (err) {
         console.log(err);
       } else {
-        result = results;
+        const parsedResults = JSON.parse(results); // Parse the JSON string into an object
+
+        result = parsedResults.default.trendingSearchesDays[0].trendingSearches;
       }
     }
   );
