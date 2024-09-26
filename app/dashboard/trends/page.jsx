@@ -7,9 +7,8 @@ import { motion } from "framer-motion";
 import TrendsTitle from "@/components/trends-keyword/trends-title";
 
 export default async function Dashboard() {
-  let trendsData = await fetch("/api/googletrend/daily");
+  let trendsData = await fetch("http://localhost:3000/api/googletrend/daily");
   let trendsJson = await trendsData.json();
-  console.log(trendsJson);
   let trends;
   trends = trendsJson.trendingSearchesDays.flatMap(
     (trendingSearchesDay) => trendingSearchesDay.trendingSearches
