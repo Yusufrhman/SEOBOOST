@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
 const googleTrends = require("google-trends-api");
+const HttpsProxyAgent = require("https-proxy-agent");
+
+let proxyAgent = new HttpsProxyAgent("http://proxy-host:8888/");
 
 export async function GET() {
   let result;
