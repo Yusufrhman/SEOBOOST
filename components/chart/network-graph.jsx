@@ -63,7 +63,6 @@ export default function NetworkGraph({ data, title }) {
     },
     title: {
       text: title,
-      color: "white",
     },
     plotOptions: {
       networkgraph: {

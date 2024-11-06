@@ -3,7 +3,6 @@ import TrendChart from "@/components/chart/trend-chart";
 import TrendsContainer from "@/components/dashboard/trends-container";
 import Link from "next/link";
 import TrendsInput from "@/components/trends-keyword/trends-input";
-import { motion } from "framer-motion";
 import TrendsTitle from "@/components/trends-keyword/trends-title";
 
 export default async function Dashboard() {
