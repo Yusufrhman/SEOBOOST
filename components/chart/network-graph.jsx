@@ -19,7 +19,7 @@ export default function NetworkGraph({ data, title }) {
       const colors = Highcharts.getOptions().colors;
       const nodes = {};
       const depthMap = {}; // Menyimpan kedalaman keyword
-      let i = 0;
+      const freqMap = {}; // Menyimpan frekuensi kemunculan setiap keyword
 
       if (
         this instanceof Highcharts.Series.types.networkgraph &&
@@ -29,28 +29,61 @@ export default function NetworkGraph({ data, title }) {
           const parent = link[0];
           const child = link[1];
 
+          // Hitung frekuensi setiap node muncul
+          freqMap[parent] = (freqMap[parent] || 0) + 1;
+          freqMap[child] = (freqMap[child] || 0) + 1;
+
           if (!nodes[parent]) {
             nodes[parent] = {
               id: parent,
-              marker: { radius: 20 },
-              color: colors[0], // Warna untuk root node
+              marker: { radius: 25 },
+              color: colors[0],
+              frequency: freqMap[parent], // Simpan frekuensi untuk tooltip
             };
-            depthMap[parent] = 0; // Kedalaman root
+            depthMap[parent] = 0;
           }
 
           // Menentukan kedalaman untuk child
           const parentDepth = depthMap[parent] + 1;
           depthMap[child] = parentDepth;
 
-          // Mengatur warna berdasarkan kedalaman
+          // Mengatur warna dan radius berdasarkan kedalaman dan frekuensi
           nodes[child] = {
             id: child,
-            marker: { radius: 5 },
-            color: colors[parentDepth % colors.length], // Warna berdasarkan kedalaman
+            marker: {
+              radius: Math.min(4 + freqMap[child] * 1.05, 12),
+            },
+            color: colors[parentDepth % colors.length],
+            frequency: freqMap[child], // Simpan frekuensi untuk tooltip
           };
         });
 
-        e.options.nodes = Object.keys(nodes).map((id) => nodes[id]);
+        // Temukan frekuensi maksimum selain root
+        const maxFrequency = Math.max(
+          ...Object.values(freqMap).filter(
+            (f) => f < freqMap[Object.keys(nodes)[0]]
+          )
+        );
+
+        // Tentukan radius dan ukuran teks untuk setiap node
+        e.options.nodes = Object.keys(nodes).map((id) => {
+          const isRoot = depthMap[id] === 0;
+          const frequency = freqMap[id] || 1;
+          return {
+            ...nodes[id],
+            marker: {
+              radius: isRoot ? 20 : 4 + (frequency / maxFrequency) * 3,
+            },
+            dataLabels: {
+              style: {
+                fontSize: isRoot
+                  ? "14px"
+                  : `${7 + (frequency / maxFrequency) * 4}px`,
+              },
+            },
+            frequency: frequency, // Tambahkan frekuensi untuk tooltip
+          };
+        });
       }
     });
   }, []);
@@ -63,6 +96,13 @@ export default function NetworkGraph({ data, title }) {
     },
     title: {
       text: title,
+      style: { color: "white" },
+    },
+    tooltip: {
+      formatter: function () {
+        const node = this.point;
+        return `<b>${node.id}</b><br/>Frequency: ${node.frequency || 1}`;
+      },
     },
     plotOptions: {
       networkgraph: {
@@ -79,7 +119,7 @@ export default function NetworkGraph({ data, title }) {
         dataLabels: {
           enabled: true,
           linkFormat: "",
-          style: { fontSize: "0.75rem", fontWeight: "normal" },
+          style: { fontWeight: "normal" },
         },
         id: "lang-tree",
         data: data,
