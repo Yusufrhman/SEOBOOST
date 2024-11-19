@@ -1,12 +1,15 @@
 // /app/api/scrapeRelatedQueries/route.js
+
 import axios from "axios";
 import { load } from "cheerio";
 
+// Fungsi untuk mengambil related queries dari Google Search
 const scrapeRelatedQueries = async (searchQuery) => {
   try {
     const query = encodeURIComponent(searchQuery);
     const url = `https://www.google.com/search?q=${query}`;
 
+    // Permintaan ke Google Search dengan header user-agent
     const { data } = await axios.get(url, {
       headers: {
         "User-Agent":
@@ -14,13 +17,16 @@ const scrapeRelatedQueries = async (searchQuery) => {
       },
     });
 
+    // Parsing data HTML menggunakan Cheerio
     const $ = load(data);
     const relatedQueries = [];
+
     $(".dg6jd")
-      .slice(0, 8)
-      .each((i, element) => {
+      .slice(0, 8) // Ambil maksimal 8 elemen
+      .each((_, element) => {
         relatedQueries.push($(element).text());
       });
+
     return relatedQueries;
   } catch (error) {
     console.error("Error fetching the related queries:", error);
@@ -28,14 +34,15 @@ const scrapeRelatedQueries = async (searchQuery) => {
   }
 };
 
+// Fungsi rekursif untuk membangun struktur kata kunci terkait
 const buildRelatedKeywords = async (keyword, depth = 1) => {
-  if (depth > 3) return []; // Batasi ke kedalaman maksimal 3 level
+  if (depth > 3) return []; // Batasi hingga kedalaman maksimal 3 level
 
   const relatedQueries = await scrapeRelatedQueries(keyword);
   const relatedKeywordObjects = [];
 
-  for (let query of relatedQueries) {
-    // Rekursif untuk menambahkan subquery di level berikutnya
+  for (const query of relatedQueries) {
+    // Rekursif untuk mendapatkan subquery di level berikutnya
     const subRelatedKeywords = await buildRelatedKeywords(query, depth + 1);
     relatedKeywordObjects.push({
       mainKeyword: query,
@@ -46,6 +53,7 @@ const buildRelatedKeywords = async (keyword, depth = 1) => {
   return relatedKeywordObjects;
 };
 
+// Endpoint API GET untuk mengambil data related queries
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const mainKeyword = searchParams.get("keyword") || "indonesia";
