@@ -6,11 +6,11 @@ import { countKeywords } from "@/lib/utils/countKeyword";
 export default async function Page({ params }) {
   const keyword = decodeURIComponent(params.keyword);
   let relatedKeyword = await fetch(
-    http://localhost:3000/api/relatedQueries?keyword=${keyword}
+    `http://localhost:3000/api/relatedQueries?keyword=${keyword}`
   );
   let keywordData = await relatedKeyword.json();
   let getGeoMapData = await fetch(
-    http://localhost:3000/api/googletrend/interest-by-region?keyword=${keyword}
+    `http://localhost:3000/api/googletrend/interest-by-region?keyword=${keyword}`
   );
   let geoMapDataFull = await getGeoMapData.json();
   let geoMapData = geoMapDataFull.default.geoMapData;
