@@ -1,4 +1,5 @@
 "use client";
+
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import networkgraph from "highcharts/modules/networkgraph";
@@ -13,18 +14,11 @@ if (typeof Highcharts === "object") {
   accessibility(Highcharts);
 }
 
-export default function NetworkGraph({ data, title }) {
+export default function NetworkGraph({ data, detail, title }) {
   useEffect(() => {
     Highcharts.addEvent(Highcharts.Series, "afterSetOptions", function (e) {
-      const colors = ["#fac29d", "#f7ad7c", "#f5914e", "#fa7c28", "#ff6600"];
       const nodes = {};
-      const depthMap = {};
-      const freqMap = {}; // Frekuensi total untuk setiap node
-      const depthFreqMap = {}; // Frekuensi berdasarkan kedalaman
-
-      // Pastikan keyword utama sebagai root berada di kedalaman 0
-      const mainKeyword = title;
-      depthMap[mainKeyword] = 0;
+      const freqMap = {}; // Menyimpan frekuensi total untuk setiap node
 
       if (
         this instanceof Highcharts.Series.types.networkgraph &&
@@ -37,71 +31,69 @@ export default function NetworkGraph({ data, title }) {
           // Hitung frekuensi total (independen dari kedalaman)
           freqMap[child] = (freqMap[child] || 0) + 1;
 
-          // Tentukan kedalaman child berdasarkan kedalaman parent (maksimal 3)
-          const parentDepth = depthMap[parent];
-          const childDepth = Math.min(parentDepth + 1, 3); // Batasi kedalaman hingga 3
-          depthMap[child] = childDepth;
-
-          // Hitung frekuensi kemunculan child pada kedalaman tertentu
-          if (!depthFreqMap[child]) depthFreqMap[child] = {};
-          depthFreqMap[child][childDepth] =
-            (depthFreqMap[child][childDepth] || 0) + 1;
-
-          // Inisialisasi node
+          // Inisialisasi node jika belum ada
           if (!nodes[parent]) {
             nodes[parent] = {
               id: parent,
-              marker: { radius: 25 },
-              color: colors[0],
-              frequency: freqMap[child],
+              marker: { radius: 30 }, // Ukuran tetap
+              color: "#ff6600", // Warna merah untuk parent
+              frequency: freqMap[parent] || 1, // Menyimpan frekuensi
+              fontSize:`24px`,
             };
           }
 
           nodes[child] = {
             id: child,
-            marker: {
-              radius: Math.min(4 + freqMap[child] * 1, 12),
-            },
-            color: colors[childDepth % colors.length],
-            frequency: freqMap[child],
+            marker: { radius: Math.max(getRadius(child), 3) },
+            color: getColor(getDepth(child)), // Warna berdasarkan kedalaman
+            frequency: freqMap[child], // Menyimpan frekuensi
+            fontSize: `${Math.max(getFontSize(child), 10)}px`, // Menghitung ukuran font berdasarkan kedalaman
           };
         });
 
-        const maxFrequency = Math.max(...Object.values(freqMap));
-
-        // Pemberian warna berdasarkan kategori frekuensi
-        const getColorByFrequency = (frequency) => {
-          const percentage = frequency / maxFrequency;
-          if (percentage >= 0.8) return colors[4];
-          if (percentage >= 0.6) return colors[3];
-          if (percentage >= 0.4) return colors[2];
-          if (percentage >= 0.2) return colors[1];
-          return colors[0];
-        };
-
-        e.options.nodes = Object.keys(nodes).map((id) => {
-          const isRoot = depthMap[id] === 0;
-          const frequency = freqMap[id] || 1;
-          return {
-            ...nodes[id],
-            marker: {
-              radius: isRoot ? 20 : 4 + (frequency / maxFrequency) * 9,
-            },
-            color: isRoot ? "#ff4400" : getColorByFrequency(frequency),
-            dataLabels: {
-              style: {
-                fontSize: isRoot
-                  ? "2rem"
-                  : `${0.5 + (frequency / maxFrequency) * 0.8}rem`,
-              },
-            },
-            frequency: frequency,
-            depthFreq: depthFreqMap[id], // Menyimpan frekuensi per kedalaman
-          };
-        });
+        // Gunakan nodes yang telah diinisialisasi
+        e.options.nodes = Object.values(nodes);
       }
     });
   }, []);
+
+  function getRadius(child) {
+    let detailKeyword = detail[`${child.toLowerCase()}`];
+    const totalKedalaman =
+      detailKeyword.kedalaman1 * 4 +
+      detailKeyword.kedalaman2 * 3 +
+      detailKeyword.kedalaman3 * 2 +
+      detailKeyword.kedalaman4 * 1;
+    return totalKedalaman;
+  }
+
+  function getFontSize(child) {
+    let detailKeyword = detail[`${child.toLowerCase()}`];
+    const totalKedalaman =
+      detailKeyword.kedalaman1 * 4 +
+      detailKeyword.kedalaman2 * 3 +
+      detailKeyword.kedalaman3 * 2 +
+      detailKeyword.kedalaman4 * 1;
+
+    // Menyesuaikan ukuran font dengan total kedalaman
+    return Math.min(16, Math.max(10, totalKedalaman / 2));
+  }
+
+  function getDepth(child) {
+    // Hitung kedalaman berdasarkan detail
+    let detailKeyword = detail[`${child.toLowerCase()}`];
+    if (!detailKeyword) return 4; // Default jika tidak ada data
+    if (detailKeyword.kedalaman1 > 0) return 1;
+    if (detailKeyword.kedalaman2 > 0) return 2;
+    if (detailKeyword.kedalaman3 > 0) return 3;
+    return 4;
+  }
+
+  function getColor(depth) {
+    // Mengatur warna berdasarkan kedalaman (semakin besar kedalaman, semakin terang)
+    const colors = ["#fa7c28", "#f5914e", "#f7ad7c", "#fac29d"]; // Merah -> Oranye -> Kuning
+    return colors[depth - 1]; // Default warna kuning pucat untuk depth 4+
+  }
 
   const repulsiveForce = Math.min(400, Math.max(100, 6000 / data.length));
   const linkLengthValue = Math.min(300, Math.max(50, 5000 / data.length));
@@ -123,37 +115,21 @@ export default function NetworkGraph({ data, title }) {
       },
     },
     title: {
-      text: "Related Keywords",
+      text: title || "Related Keywords",
       style: { color: "#36BFB1", fontSize: "1.5rem" },
     },
     tooltip: {
       formatter: function () {
         const node = this.point;
-        const depthFreq = node.depthFreq || {};
-
-        // Jika ada kedalaman lebih dari 3, masukkan ke dalam kedalaman ke-3
-        const mergedDepthInfo = { ...depthFreq };
-        if (Object.keys(mergedDepthInfo).some((depth) => depth > 3)) {
-          mergedDepthInfo[3] = Object.keys(mergedDepthInfo)
-            .filter((depth) => depth > 3)
-            .reduce(
-              (acc, depth) => acc + mergedDepthInfo[depth],
-              mergedDepthInfo[3] || 0
-            );
-
-          // Hapus kedalaman lebih dari 3 setelah digabungkan
-          Object.keys(mergedDepthInfo)
-            .filter((depth) => depth > 3)
-            .forEach((depth) => delete mergedDepthInfo[depth]);
-        }
-
-        const depthInfo = Object.keys(mergedDepthInfo)
-          .map((depth) => `Kedalaman ke-${depth}: ${mergedDepthInfo[depth]}x`)
-          .join("<br/>");
-
-        return `<b>${node.id}</b><br/>Frequency: ${
-          node.frequency || 1
-        }<br/>${depthInfo}`;
+        const keywordDetail = detail[node.id.toLowerCase()] || {};
+        return `
+          <b>${node.id}</b><br/>
+          Frequency: ${node.frequency || 1}<br/>
+          Kedalaman 1: ${keywordDetail.kedalaman1 || 0}<br/>
+          Kedalaman 2: ${keywordDetail.kedalaman2 || 0}<br/>
+          Kedalaman 3: ${keywordDetail.kedalaman3 || 0}<br/>
+          Kedalaman 4: ${keywordDetail.kedalaman4 || 0}
+        `;
       },
     },
     plotOptions: {
@@ -178,8 +154,13 @@ export default function NetworkGraph({ data, title }) {
           enabled: true,
           linkFormat: "",
           style: {
-            fontSize: "0.8em",
             fontWeight: "normal",
+            color: "#fff", // Tambahan untuk warna teks
+          },
+          formatter: function () {
+            return `<span style="font-size:${this.point.fontSize || "12px"}">${
+              this.point.id
+            }</span>`;
           },
         },
         id: "lang-tree",
