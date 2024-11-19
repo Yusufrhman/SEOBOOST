@@ -6,8 +6,8 @@ import TrendsInput from "@/components/trends-keyword/trends-input";
 import TrendsTitle from "@/components/trends-keyword/trends-title";
 
 export default async function Dashboard() {
-  // let trendsData = await fetch("http://localhost:3000/api/googletrend/daily");
-  let trendsData = await fetch("http://localhost:8000/trends");
+  let trendsData = await fetch("http://localhost:3000/api/googletrend/daily");
+  // let trendsData = await fetch("http://localhost:8000/trends");
 
   let trendsJson = await trendsData.json();
   let trends;
