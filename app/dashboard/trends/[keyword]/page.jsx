@@ -1,5 +1,6 @@
 import IndonesiaMap from "@/components/chart/indo-map";
 import NetworkGraph from "@/components/chart/network-graph";
+import Table from "@/components/chart/table";
 import { convertToNodePairs } from "@/lib/utils/convertToNodePairs";
 import { countKeywords } from "@/lib/utils/countKeyword";
 
@@ -27,6 +28,10 @@ export default async function Page({ params }) {
           detail={countKeywordDepth}
           title={keywordData.mainKeyword}
         />
+        <section className="h-[50vh] overflow-scroll relative">
+          <Table data={countKeywordDepth} />
+        </section>
+
         <section className="h-fit">
           <section className="flex gap-8 items-center justify-between h-[30rem] bg-[#2b2b2b] p-8 rounded-lg">
             <IndonesiaMap geoMapData={geoMapData} />
@@ -46,7 +51,11 @@ export default async function Page({ params }) {
                   <tbody>
                     {geoMapData.map((item, index) => {
                       return (
-                        <tr id={item.id} key={item.id} className="border-b border-gray-600">
+                        <tr
+                          id={item.id}
+                          key={item.id}
+                          className="border-b border-gray-600"
+                        >
                           <td className="p-3">{index + 1}</td>
                           <td className="p-3">{item.geoName}</td>
                           <td className="p-3">{item.value}</td>

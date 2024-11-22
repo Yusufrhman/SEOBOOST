@@ -15,6 +15,7 @@ if (typeof Highcharts === "object") {
 }
 
 export default function NetworkGraph({ data, detail, title }) {
+  console.log(detail)
   useEffect(() => {
     Highcharts.addEvent(Highcharts.Series, "afterSetOptions", function (e) {
       const nodes = {};
@@ -38,7 +39,7 @@ export default function NetworkGraph({ data, detail, title }) {
               marker: { radius: 30 }, // Ukuran tetap
               color: "#ff6600", // Warna merah untuk parent
               frequency: freqMap[parent] || 1, // Menyimpan frekuensi
-              fontSize:`24px`,
+              fontSize: `24px`,
             };
           }
 
@@ -47,7 +48,7 @@ export default function NetworkGraph({ data, detail, title }) {
             marker: { radius: Math.max(getRadius(child), 3) },
             color: getColor(getDepth(child)), // Warna berdasarkan kedalaman
             frequency: freqMap[child], // Menyimpan frekuensi
-            fontSize: `${Math.max(getFontSize(child), 10)}px`, // Menghitung ukuran font berdasarkan kedalaman
+            fontSize: `${Math.max(getFontSize(child), 8)}px`, // Menghitung ukuran font berdasarkan kedalaman
           };
         });
 
@@ -76,7 +77,7 @@ export default function NetworkGraph({ data, detail, title }) {
       detailKeyword.kedalaman4 * 1;
 
     // Menyesuaikan ukuran font dengan total kedalaman
-    return Math.min(16, Math.max(10, totalKedalaman / 2));
+    return totalKedalaman;
   }
 
   function getDepth(child) {
